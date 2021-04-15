@@ -726,7 +726,7 @@ contract NcatPound is Ownable {
     // Internal functions.
 
     function _commitRandomNcats(uint256 num) internal {
-        require(num > 0, "NcatPound: anon, you cant reveal 0 ncats");
+        require(num > 0, "NcatPound: CatMaster, you cant reveal 0 ncats");
         uint256 currentBlock = block.number;
         require(commits[msg.sender].block + 255 < currentBlock, "NcatPound: still need to reveal");
         commits[msg.sender].block = uint64(currentBlock);
