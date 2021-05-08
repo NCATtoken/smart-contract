@@ -623,12 +623,10 @@ pragma solidity ^0.8.0;
 contract NcatPound is Ownable {
     address public constant BURN_ADDR = 0x0000000000000000000000000000000000000001;
     address public constant NCAT_TOKEN = 0x0cF011A946f23a03CeFF92A4632d5f9288c6C70D;
-    address public constant NCAT = 0x0cF011A946f23a03CeFF92A4632d5f9288c6C70D; //Set to NFT address when deployed
-    uint256 constant MAX_NFT_SUPPLY = 10000;
+    address public constant NCAT = 0x3890Ee22F9824086370bbdE2abe680Dc2Af7E156; 
     bytes4 private constant _ERC721_RECEIVED = 0x150b7a02;
 
-    uint256 public swapCost = 1000000000 ether;
-
+    uint256 public swapCost = 2 ether;
     uint256 public ncatCount;
     uint256 public revealNonce;
 
@@ -656,7 +654,6 @@ contract NcatPound is Ownable {
         // Only accept NFTs through this function if they're being funneled.
         require(msg.sender == NCAT, "NcatPound: NFT not from ncat");
         require(operator == address(this), "NcatPound: invalid operator");
-        require(tokenId <= MAX_NFT_SUPPLY, "NcatPound: over max ncats");
         ncatsInPound[ncatCount] = Ncat(NCAT, uint64(tokenId));
         ncatCount++;
         return _ERC721_RECEIVED;
@@ -665,15 +662,11 @@ contract NcatPound is Ownable {
 
     // This function commits that the sender will swap a ncat within the next 255 blocks.
     // If they fail to revealNcat() within that timeframe. The money they sent is forfeited to reduce complexity.
-    function commitSwapNcat(uint256 num) external payable {
-        require(msg.value == num * swapCost);
+    function commitSwapNcat(uint256 num) external payable{
         require(num <= ncatCount, "NcatPound: not enough ncat in pound");
         address _BURN_ADDR = BURN_ADDR;
         uint256 burnAmount = num * swapCost; 
         SafeERC20.safeTransferFrom(IERC20(NCAT_TOKEN), msg.sender, _BURN_ADDR, burnAmount);
-       {
-            SafeERC20.safeTransferFrom(IERC20(NCAT_TOKEN), msg.sender, address(this), num * swapCost - burnAmount);
-        }
         _commitRandomNcats(num);
     }
 
@@ -711,7 +704,7 @@ contract NcatPound is Ownable {
         payable(msg.sender).transfer(balance);
     }
 
-    function withdrawFromNcatsion() public onlyOwner() {
+    function withdrawFromNcat() public onlyOwner() {
         INcat(NCAT).withdraw();
     }
 
@@ -753,3 +746,4 @@ contract NcatPound is Ownable {
         revealNonce++;
         return randomIDs;
     }
+}
